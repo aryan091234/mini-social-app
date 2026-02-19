@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini Social App (Saved Posts)</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 400px;
+      background: white;
+      margin-top: 40px;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h2 { text-align: center; }
+
+    input, textarea, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    button {
+      background: #1877f2;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover { background: #0f5dc2; }
+
+    .post {
+      background: #fafafa;
+      padding: 10px;
+      margin-top: 15px;
+      border-radius: 8px;
+      border: 1px solid #eee;
+    }
+
+    .like-btn {
+      background: #e4e6eb;
+      color: black;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- Login Section -->
+    <div id="loginSection">
+      <h2>Login</h2>
+      <input type="text" id="username" placeholder="Enter your name" />
+      <button onclick="login()">Login</button>
+    </div>
+
+    <!-- App Section -->
+    <div id="appSection" style="display:none;">
+      <h2>Mini Social App</h2>
+
+      <textarea id="postInput" placeholder="Write something..."></textarea>
+      <button onclick="addPost()">Post</button>
+
+      <div id="posts"></div>
+    </div>
+
+  </div>
+
+  <script>
+    let currentUser = "";
+    let posts = JSON.parse(localStorage.getItem("posts")) || [];
+
+    function savePosts() {
+      localStorage.setItem("posts", JSON.stringify(posts));
+    }
+
+    function login() {
+      const name = document.getElementById("username").value.trim();
+      if (name === "") {
+        alert("Please enter your name");
+        return;
+      }
+
+      currentUser = name;
+      document.getElementById("loginSection").style.display = "none";
+      document.getElementById("appSection").style.display = "block";
+
+      showPosts();
+    }
+
+    function addPost() {
+      const text = document.getElementById("postInput").value.trim();
+      if (text === "") return;
+
+      const newPost = { user: currentUser, text: text, likes: 0 };
+      posts.unshift(newPost);
+
+      savePosts();
+      showPosts();
+
+      document.getElementById("postInput").value = "";
+    }
+
+    function likePost(index) {
+      posts[index].likes++;
+      savePosts();
+      showPosts();
+    }
+
+    function showPosts() {
+      const postsDiv = document.getElementById("posts");
+      postsDiv.innerHTML = "";
+
+      posts.forEach((post, index) => {
+        const postDiv = document.createElement("div");
+        postDiv.className = "post";
+
+        const content = document.createElement("p");
+        content.innerText = post.user + ": " + post.text;
+
+        const likeBtn = document.createElement("button");
+        likeBtn.innerText = `Like (${post.likes})`;
+        likeBtn.className = "like-btn";
+        likeBtn.onclick = () => likePost(index);
+
+        postDiv.appendChild(content);
+        postDiv.appendChild(likeBtn);
+        postsDiv.appendChild(postDiv);
+      });
+    }
+  </script>
+
+</body>
+</html>
